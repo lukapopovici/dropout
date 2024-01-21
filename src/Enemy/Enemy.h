@@ -8,7 +8,6 @@ class Enemy : public EnemyEntity
 {
 
 public:
-    static std::vector<Entity *> entities2;
     std::vector<std::pair<int, int>> target_node;
 
     Enemy(int ArenaWidth, int ArenaHeight, int StartPosX, int StartPosY, SDL_Renderer *renderer) : EnemyEntity(ArenaWidth, ArenaHeight, StartPosX, StartPosY, renderer)
@@ -19,26 +18,7 @@ public:
     }
 
     virtual void Die() = 0;
-    /*
-       bool CheckCollisonWithOtherEnemies(int POSX, int POSY)
-       {
-           for (Entity *otherEnemy : entities2)
-           {
 
-               if (otherEnemy != this)
-               {
-                   if (POSX < otherEnemy->GetPosX() + otherEnemy->GetW() &&
-                       POSX + this->W > otherEnemy->GetPosX() &&
-                       POSY < otherEnemy->GetPosY() + otherEnemy->GetH() &&
-                       POSY + this->H > otherEnemy->GetPosY())
-                   {
-                       return false;
-                   }
-               }
-           }
-           return true;
-       }
-   */
     void MoveToTarget(float deltaTime)
     {
         float offset = deltaTime * this->speed;

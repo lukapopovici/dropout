@@ -24,6 +24,8 @@ class GameState : public State
 {
 private:
 public:
+    int maxlevels = 3;
+    int currentlevel = 1;
     inline static bool firstTime = true;
     void Render(float deltaTime)
     {
@@ -42,11 +44,22 @@ public:
         {
             Update(GameOver_N);
         }
-        if (Arena::GetInstance()->ReturnEntitiesSize() == 0)
+        if (Arena::GetInstance()->ReturnEntitiesSize() == 0 && currentlevel > maxlevels)
         {
             SDL_Delay(1000);
-
             Update(GameWin_N);
+        }
+        else if (Arena::GetInstance()->ReturnEntitiesSize() == 0 && currentlevel <= maxlevels)
+        {
+            currentlevel++;
+            Arena::GetInstance()->IncreaseLevel();
+            Arena::GetInstance()->DeletePlayer();
+            Arena::GetInstance()->DeleteMap();
+            Arena::GetInstance()->CreateMap();
+            Arena::GetInstance()->CreatePlayer();
+            Arena::GetInstance()->CreateFactory();
+            
+            Arena::GetInstance()->ClearProjectiles();
         }
     }
 
@@ -57,28 +70,37 @@ public:
 
     void GatherInput(SDL_Event event, float deltaTime)
     {
-
-        switch (event.type)
+        try
         {
-        case SDL_KEYDOWN:
-
-        {
-            if (event.key.keysym.sym == SDLK_p)
+            switch (event.type)
             {
-                Update(GamePause_N);
-                Arena::GetInstance()->isPaused = true;
-            }
-            else
-                Arena::GetInstance()->MovePlayer(event.key.keysym.sym, deltaTime);
-        }
-        break;
+            case SDL_KEYDOWN:
 
-        case SDL_MOUSEBUTTONDOWN:
-            if (event.button.button == SDL_BUTTON_LEFT)
             {
-                Arena::GetInstance()->SpawnBullet(event.button.x, event.button.y);
+                if (event.key.keysym.sym == SDLK_p)
+                {
+                    Update(GamePause_N);
+                    Arena::GetInstance()->isPaused = true;
+                }
+                else
+                //pt cazul in care apas o tasta in timp ce e schimbata starea si apelez playerul care e sters 
+                if(Arena::GetInstance()->CheckPlayer()){
+                    Arena::GetInstance()->MovePlayer(event.key.keysym.sym, deltaTime);
+                }
             }
             break;
+
+            case SDL_MOUSEBUTTONDOWN:
+                if (event.button.button == SDL_BUTTON_LEFT)
+                {
+                    Arena::GetInstance()->SpawnBullet(event.button.x, event.button.y);
+                }
+                break;
+            }
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << e.what() << '\n';
         }
         // Arena::GetInstance()->CopyVectorIntoEnemy();
     };
@@ -88,10 +110,15 @@ public:
         this->nextSTATE = GameState_N;
         if (firstTime)
         {
+            try{
             Arena::CreateInstance(renderer);
             Arena::GetInstance()->CreatePlayer();
             Arena::GetInstance()->CreateFactory();
-
+            }
+            catch (const std::exception &e)
+            {
+                std::cerr <<"Error on creating the ARENA!" << '\n';
+            }
             Arena::GetInstance()->StartSpawn();
         }
         GameOverMenu::deleteInstance();
@@ -119,17 +146,23 @@ public:
 
     void GatherInput(SDL_Event event, float deltatime)
     {
-
-        switch (event.type)
+        try
         {
-
-        case SDL_KEYDOWN:
-            if (event.key.keysym.sym == SDLK_p)
+            switch (event.type)
             {
-                Update(GameState_N);
-                Arena::GetInstance()->isPaused = false;
+
+            case SDL_KEYDOWN:
+                if (event.key.keysym.sym == SDLK_p)
+                {
+                    Update(GameState_N);
+                    Arena::GetInstance()->isPaused = false;
+                }
+                break;
             }
-            break;
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << e.what() << '\n';
         }
     }
 
@@ -153,17 +186,24 @@ public:
     };
     void GatherInput(SDL_Event event, float deltatime)
     {
-        switch (event.type)
+        try
         {
+            switch (event.type)
+            {
 
-        case SDL_MOUSEBUTTONDOWN:
-            int mouseX = event.button.x;
-            int mouseY = event.button.y;
+            case SDL_MOUSEBUTTONDOWN:
+                int mouseX = event.button.x;
+                int mouseY = event.button.y;
 
-            if (MainMenu::getInstance()->CheckInteractions(mouseX, mouseY))
-                Update(GameState_N);
+                if (MainMenu::getInstance()->CheckInteractions(mouseX, mouseY))
+                    Update(GameState_N);
 
-            break;
+                break;
+            }
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << e.what() << '\n';
         }
     }
     GameMenu(SDL_Renderer *renderer)
@@ -190,17 +230,24 @@ public:
 
     void GatherInput(SDL_Event event, float deltatime)
     {
-        switch (event.type)
+        try
         {
+            switch (event.type)
+            {
 
-        case SDL_MOUSEBUTTONDOWN:
-            int mouseX = event.button.x;
-            int mouseY = event.button.y;
+            case SDL_MOUSEBUTTONDOWN:
+                int mouseX = event.button.x;
+                int mouseY = event.button.y;
 
-            if (GameOverMenu::getInstance()->CheckInteractions(mouseX, mouseY))
-                Update(GameMenu_N);
+                if (GameOverMenu::getInstance()->CheckInteractions(mouseX, mouseY))
+                    Update(GameMenu_N);
 
-            break;
+                break;
+            }
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << e.what() << '\n';
         }
     }
     GameOver(SDL_Renderer *renderer)
@@ -228,17 +275,24 @@ public:
 
     void GatherInput(SDL_Event event, float deltatime)
     {
-        switch (event.type)
+        try
         {
+            switch (event.type)
+            {
 
-        case SDL_MOUSEBUTTONDOWN:
-            int mouseX = event.button.x;
-            int mouseY = event.button.y;
+            case SDL_MOUSEBUTTONDOWN:
+                int mouseX = event.button.x;
+                int mouseY = event.button.y;
 
-            if (GameWinMenu::getInstance()->CheckInteractions(mouseX, mouseY))
-                Update(GameMenu_N);
+                if (GameWinMenu::getInstance()->CheckInteractions(mouseX, mouseY))
+                    Update(GameMenu_N);
 
-            break;
+                break;
+            }
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << e.what() << '\n';
         }
     }
     GameWin(SDL_Renderer *renderer)

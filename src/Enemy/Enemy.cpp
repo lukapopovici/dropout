@@ -7,4 +7,3 @@
 #include "../Arena/Arena.h"
 
 
-std::vector<Entity*> Enemy::entities2;

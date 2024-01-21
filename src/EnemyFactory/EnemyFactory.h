@@ -3,16 +3,17 @@ using namespace std;
 class Factory : public Entity
 {
 private:
-    int MAX_ENEMIES = 10;
+    int MAX_ENEMIES;
     int currentEnemies;
 
 public:
-    Factory(int ArenaWidth, int ArenaHeight, int StartPosX, int StartPosY, SDL_Renderer *renderer) : Entity(ArenaWidth, ArenaHeight, StartPosX, StartPosY, renderer)
+    Factory(int ArenaWidth, int ArenaHeight, int StartPosX, int StartPosY, SDL_Renderer *renderer,int max_enemies) : Entity(ArenaWidth, ArenaHeight, StartPosX, StartPosY, renderer)
     {
         this->H = 40;
         this->W = 40;
         this->speed = 0; // nu se misca fabrica lol
         currentEnemies = 0;
+        MAX_ENEMIES = max_enemies;
     }
 
     void Die()

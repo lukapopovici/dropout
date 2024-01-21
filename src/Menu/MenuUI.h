@@ -1,6 +1,6 @@
 #pragma once
 #include "Buttons.h"
-#include <vector>
+
 // clasa de baza pentru meniu
 // de expandat functionalitate pentru adaugat mai multe butoane
 class Menu
@@ -9,7 +9,7 @@ private:
     SDL_Renderer *renderer;
 
 public:
-    std::vector<Button*> buttons;
+    Button *button;
 
     Menu(SDL_Renderer *renderer)
     {
@@ -17,10 +17,8 @@ public:
     }
     void Draw()
     {
-        for (auto button : buttons)
-        {
-            button->Draw();
-        }
+
+        button->Draw();
     }
     void CheckInteractions(int PosX, int PosY);
 };
@@ -32,7 +30,7 @@ private:
     inline static MainMenu *instance = nullptr;
     MainMenu(SDL_Renderer *renderer) : Menu(renderer)
     {
-        buttons.push_back(new GameStartButton(200, 450, 150, renderer));
+        button = new GameStartButton(200, 450, 150, renderer);
     }
 
 public:
@@ -59,7 +57,7 @@ public:
 
     bool CheckInteractions(int PosX, int PosY)
     {
-        if (buttons[0]->CheckInteractions(PosX, PosY))
+        if (button->CheckInteractions(PosX, PosY))
         {
 
             return true;
@@ -75,7 +73,7 @@ private:
     inline static GameOverMenu *instance = nullptr;
     GameOverMenu(SDL_Renderer *renderer) : Menu(renderer)
     {
-        buttons.push_back(new GameOverButton(200, 500, 200, renderer));
+        button = new GameOverButton(200, 500, 200, renderer);
     }
 
 public:
@@ -103,7 +101,7 @@ public:
 
     bool CheckInteractions(int PosX, int PosY)
     {
-        if (buttons[0]->CheckInteractions(PosX, PosY))
+        if (button->CheckInteractions(PosX, PosY))
         {
             return true;
         }
@@ -117,7 +115,7 @@ private:
     inline static GameWinMenu *instance = nullptr;
     GameWinMenu(SDL_Renderer *renderer) : Menu(renderer)
     {
-        buttons.push_back(new GameWinButton(200, 500, 200, renderer));
+        button = new GameWinButton(200, 500, 200, renderer);
     }
 
 public:
@@ -145,7 +143,7 @@ public:
 
     bool CheckInteractions(int PosX, int PosY)
     {
-        if (buttons[0]->CheckInteractions(PosX, PosY))
+        if (button->CheckInteractions(PosX, PosY))
         {
             return true;
         }

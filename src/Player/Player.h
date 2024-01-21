@@ -50,7 +50,7 @@ public:
 
     Uint32 ResetSpeed(Uint32 interval)
     {
-        this->speed = 10;
+        this->speed /= 2;
         this->isInvincible = false;
         std::cout << "Speed reset: " << this->speed << std::endl;
         return interval;

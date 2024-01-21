@@ -1,5 +1,12 @@
 #pragma once
 
+class ButtonInterface
+{
+public:
+    virtual void Draw() = 0;
+    virtual bool CheckInteractions(int PosX, int PosY) = 0;
+};
+
 class Button
 {
 protected:

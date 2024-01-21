@@ -10,6 +10,7 @@ using namespace std;
 class Arena
 {
 private:
+   int level = 1;
    int height = 1000;
    int width = 1000;
    SDL_Renderer *renderer;
@@ -32,7 +33,7 @@ private:
       this->height = height;
       this->width = width;
       this->renderer = renderer;
-      Map::CreateInstance(renderer);
+      Map::CreateInstance(renderer, level);
       this->map = Map::GetInstance();
       this->isPaused = false;
    }
@@ -69,6 +70,25 @@ public:
       }
    }
 
+   static void IncreaseLevel()
+   {
+      instance->level++;
+   }
+
+   static void CreateMap()
+   {
+      Map::CreateInstance(instance->renderer, instance->level);
+      instance->map = Map::GetInstance();
+   }
+   void DeleteMap()
+   {
+      Map::deleteInstance();
+      if (instance)
+      {
+         instance->currentFactories = 0;
+      }
+   }
+
    static void deleteInstance()
    {
       if (instance)
@@ -102,6 +122,10 @@ public:
          return;
       }
    }
+   void DeletePlayer()
+   {
+      Player::deleteInstance();
+   }
    int ReturnEntitiesSize()
    {
       return this->entities.size();
@@ -113,12 +137,25 @@ public:
          return;
       else
       {
-         Factory *factory = new Factory(this->width, this->height, 130, 130, renderer);
-         this->entities.push_back(factory);
-         Factory *factory2 = new Factory(this->width, this->height, 630, 630, renderer);
-         this->entities.push_back(factory2);
-         KillConsumable *consumable = new KillConsumable(this->width, this->height, 750, 750, renderer);
-         this->entities.push_back(consumable);
+         // configurarea nivelelor
+         // fiecare nivel e mai greu nu doar din pricina hartii, ci si din faptul ca pot fi mai multi inamici generati de catre fabrici
+         if (this->level == 1)
+         {
+            this->entities.push_back(new Factory(this->width, this->height, 130, 130, renderer, 5));
+            this->entities.push_back(new Factory(this->width, this->height, 630, 630, renderer, 5));
+            this->entities.push_back(new KillConsumable(this->width, this->height, 750, 750, renderer));
+         }
+         else if (this->level == 2)
+         {
+            this->entities.push_back(new Factory(this->width, this->height, 830, 830, renderer, 3));
+            this->entities.push_back(new Factory(this->width, this->height, 430, 430, renderer, 3));
+            this->entities.push_back(new KillConsumable(this->width, this->height, 250, 250, renderer));
+         }
+         else if (this->level == 3)
+         {
+            this->entities.push_back(new Factory(this->width, this->height, 630, 630, renderer, 10));
+            this->entities.push_back(new SlowConsumable(this->width, this->height, 750, 750, renderer));
+         }
       }
    }
 
@@ -126,6 +163,28 @@ public:
    {
       Bullet *bullet = new Bullet(this->width, this->height, Player::getInstance()->GetPosX(), Player::getInstance()->GetPosY(), mouse_x, mouse_y, renderer);
       this->projectiles.push_back(bullet);
+   }
+
+   bool CheckPlayer()
+   {
+      if (Player::getInstance())
+         return true;
+      else
+         return false;
+   }
+
+   void ClearProjectiles()
+   {
+      if (this->projectiles.size() == 0)
+         return;
+      else
+      {
+         for (int i = 0; i < this->projectiles.size(); i++)
+         {
+            delete this->projectiles[i];
+         }
+         this->projectiles.clear();
+      }
    }
 
    static Uint32 TimerCallback(Uint32 interval, void *param)
@@ -154,23 +213,6 @@ public:
       std::lock_guard<std::mutex> lock(timerMutex);
       timerID = SDL_AddTimer(500, TimerCallback, this);
    }
-   // Plang cand comentez asta
-   /*
-      void CopyVectorIntoEnemy()
-      {
-         Enemy::entities2.clear();
-         //std::cout << "Vector cleared" << std::endl;
-         for (int i = 0; i < entities.size(); i++)
-         {
-            if (Enemy *enemy = dynamic_cast<Enemy *>(entities[i]))
-
-            {
-                  Enemy::entities2.push_back(enemy);
-               //   std::cout << "Enemy added to vector" << std::endl;
-            }
-         }
-      }
-      */
    // functie care itereaza prin fabricile din vectorul meu de entitati inamice
    // si le face sa scuipe dusmani
    void FactorySpawnEnemies()
@@ -205,11 +247,18 @@ public:
    // functie timer #2
    void UpdateEnemyAI()
    {
-      for (int i = 0; i < this->entities.size(); i++)
+      if (entities.size() == 0)
       {
-         if (Enemy *enemy = dynamic_cast<Enemy *>(this->entities[i]))
+         return;
+      }
+      else
+      {
+         for (int i = 0; i < entities.size(); i++)
          {
-            enemy->PathToPlayer();
+            if (Enemy *enemy = dynamic_cast<Enemy *>(entities[i]))
+            {
+               enemy->PathToPlayer();
+            }
          }
       }
    }
@@ -249,12 +298,17 @@ public:
             Player::getInstance()->Die();
          }
       }
-      for (int j = 0; j < this->projectiles.size(); j++)
+      if (projectiles.size() == 0)
+         return;
+      else
       {
-         if (enemy->CheckCollisionWithBullet(this->projectiles[j]))
+         for (int i = 0; i < this->projectiles.size(); i++)
          {
-            enemy->Die();
-            this->projectiles[j]->Dissaper();
+            if (enemy->CheckCollisionWithBullet(this->projectiles[i]))
+            {
+               enemy->Die();
+               this->projectiles[i]->Dissaper();
+            }
          }
       }
    }
@@ -289,21 +343,33 @@ public:
    // scap de inamicii morti
    void CheckEntities()
    {
-      for (int i = 0; i < this->entities.size(); i++)
+      if (this->entities.size() == 0)
       {
-         if (!this->entities[i]->IsAlive())
+      }
+      else
+      {
+         for (int i = 0; i < this->entities.size(); i++)
          {
-            // chem destructorul sa ma fereasca Dumnezeu de memory leak
-            delete this->entities[i];
-            this->entities.erase(this->entities.begin() + i);
+            if (!this->entities[i]->IsAlive())
+            {
+               // chem destructorul sa ma fereasca Dumnezeu de memory leak
+               delete this->entities[i];
+               this->entities.erase(this->entities.begin() + i);
+            }
          }
       }
-      for (int i = 0; i < this->projectiles.size(); i++)
+      if (this->projectiles.size() == 0)
       {
-         if (!this->projectiles[i]->IsRenderable())
+      }
+      else
+      {
+         for (int i = 0; i < this->projectiles.size(); i++)
          {
-            delete this->projectiles[i];
-            this->projectiles.erase(this->projectiles.begin() + i);
+            if (!this->projectiles[i]->IsRenderable())
+            {
+               delete this->projectiles[i];
+               this->projectiles.erase(this->projectiles.begin() + i);
+            }
          }
       }
    }

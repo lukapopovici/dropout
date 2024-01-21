@@ -27,10 +27,17 @@ private:
 public:
     Game()
     {
-        SDL_Init(SDL_INIT_VIDEO);
-        window = SDL_CreateWindow("#DROPOUT", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
-        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-
+        try
+        {
+            SDL_Init(SDL_INIT_VIDEO);
+            window = SDL_CreateWindow("#DROPOUT", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
+            renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << e.what() << '\n';
+            std::cerr << "SDL_Init failed" << '\n';
+        }
         SetState(tate, renderer, GameMenu_N);
     }
 
@@ -48,7 +55,14 @@ public:
             {
                 if (event.type == SDL_QUIT)
                     quit = true;
-                tate->GatherInput(event, deltaTime);
+                try
+                {
+                    tate->GatherInput(event, deltaTime);
+                }
+                catch (const std::exception &e)
+                {
+                    std::cerr << e.what() << '\n';
+                }
             }
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
             SDL_RenderClear(renderer);
