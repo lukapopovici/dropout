@@ -9,6 +9,12 @@ It also uses multiple design patterns such as singleton, state machine and obser
 The update function for the AI also uses the A* algorithm and is made threading safe with the use of the [lock_guard](https://en.cppreference.com/w/cpp/thread/lock_guard) toa void destroying the timers and exploding the game.
 It also has custom UI.
 
+## UML Diagram
+
+Below, there is an abstractized UML diagram representation of the relationship between the classes.
+
+![Screenshot from 2024-01-21 13-48-18](https://github.com/lukapopovici/dropout/assets/128390767/face8445-5434-4bf9-85d1-607db0cc140a)
+
 # Story concept
 
 ![image](https://github.com/lukapopovici/dropout/assets/128390767/3a04357f-cb5b-493d-9ac1-4de55279473f)
@@ -31,4 +37,4 @@ Afterwards you can run
 make clean
 
 ```
-to remove the object files.
+to remove the object files and the compiled executable.
