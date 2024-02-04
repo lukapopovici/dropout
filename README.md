@@ -29,7 +29,7 @@ In this game you are a DROPOUT being hunted by academics.
 
 # Compiling
 
-Simply run  
+Simply run the
 ```
 "make"
 ```
