@@ -9,10 +9,15 @@ It also uses multiple design patterns such as singleton, state machine and obser
 The update function for the AI also uses the A* algorithm and is made threading safe with the use of the [lock_guard](https://en.cppreference.com/w/cpp/thread/lock_guard) toa void destroying the timers and exploding the game.
 It also has custom UI.
 
+## Video
+
+I've recorded the project milestones of making the game [here](https://youtu.be/T90d7CCsZw0). Feel free to like and subscrive! 
+
 ## UML Diagram
 
 Below, there is an abstractized UML diagram representation of the relationship between the classes.
 
+The diagram itself is not wholly accuracte as I made it for the purpose of a short presentation.
 ![Screenshot from 2024-01-21 13-48-18](https://github.com/lukapopovici/dropout/assets/128390767/face8445-5434-4bf9-85d1-607db0cc140a)
 
 # Story concept
